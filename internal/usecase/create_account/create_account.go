@@ -1,0 +1,43 @@
+package createaccount
+
+import (
+	"github.com.br/devfullcycle/fc-ms-wallet/internal/entity"
+	"github.com.br/devfullcycle/fc-ms-wallet/internal/gateway"
+)
+
+type CreateAccountInputDTO struct {
+	ClientID string
+}
+
+type CreateAccountOutputDTO struct {
+	ID string
+}
+
+type CreateAccountUsecase struct {
+	AccountGateway gateway.AccountGateway
+	ClientGateway  gateway.ClientGateway
+}
+
+func NewCreateAccountUsecase(a gateway.AccountGateway, c gateway.ClientGateway) *CreateAccountUsecase {
+	return &CreateAccountUsecase{
+		AccountGateway: a,
+		ClientGateway:  c,
+	}
+}
+
+func (uc *CreateAccountUsecase) Execute(input CreateAccountInputDTO) (*CreateAccountOutputDTO, error) {
+	client, err := uc.ClientGateway.Get(input.ClientID)
+	if err != nil {
+		return nil, err
+	}
+
+	account := entity.NewAccount(client)
+	err = uc.AccountGateway.Save(account)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CreateAccountOutputDTO{
+		ID: account.ID,
+	}, nil
+}
