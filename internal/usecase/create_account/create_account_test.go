@@ -1,9 +1,10 @@
-package createaccount
+package create_account
 
 import (
 	"testing"
 
 	"github.com.br/devfullcycle/fc-ms-wallet/internal/entity"
+	"github.com.br/devfullcycle/fc-ms-wallet/internal/usecase/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,26 +23,12 @@ func (m *ClientGatewayMock) Save(client *entity.Client) error {
 	return args.Error(0)
 }
 
-type AccountGatewayMock struct {
-	mock.Mock
-}
-
-func (m *AccountGatewayMock) Save(account *entity.Account) error {
-	args := m.Called(account)
-	return args.Error(0)
-}
-
-func (m *AccountGatewayMock) FindByID(id string) (*entity.Account, error) {
-	args := m.Called(id)
-	return args.Get(0).(*entity.Account), args.Error(1)
-}
-
 func TestCreateAccountUsecase_Execute(t *testing.T) {
 	client, _ := entity.NewClient("Alef Passos", "a@a.com")
 	clientMock := &ClientGatewayMock{}
 	clientMock.On("Get", client.ID).Return(client, nil)
 
-	accountMock := &AccountGatewayMock{}
+	accountMock := &mocks.AccountGatewayMock{}
 	accountMock.On("Save", mock.Anything).Return(nil)
 
 	uc := NewCreateAccountUsecase(accountMock, clientMock)

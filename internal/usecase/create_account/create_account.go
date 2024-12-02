@@ -1,4 +1,4 @@
-package createaccount
+package create_account
 
 import (
 	"github.com.br/devfullcycle/fc-ms-wallet/internal/entity"
@@ -6,7 +6,7 @@ import (
 )
 
 type CreateAccountInputDTO struct {
-	ClientID string
+	ClientID string `json:"client_id"`
 }
 
 type CreateAccountOutputDTO struct {
