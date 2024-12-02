@@ -31,14 +31,17 @@ func main() {
 	defer db.Close()
 
 	configMap := ckafka.ConfigMap{
-		"bootstrp.servers": "kafka:29092",
-		"group.id":         "wallet",
+		"bootstrap.servers": "kafka:29092",
+		"group.id":          "wallet",
 	}
 	kafkaProducer := kafka.NewKafkaProducer(&configMap)
 
 	eventDispatcher := events.NewEventDispatcher()
 	eventDispatcher.Register("TransactionCreated", handler.NewTransactionCreatedKafkaHandler(kafkaProducer))
+	eventDispatcher.Register("BalanceUpdated", handler.NewBalanceUpdatedKafkaHandler(kafkaProducer))
+
 	transactionCreatedEvent := event.NewTransactionCreated()
+	balanceUpdateEvent := event.NewBalanceUpdated()
 
 	clientDb := database.NewClientDB(db)
 	accountDb := database.NewAccountDB(db)
@@ -54,7 +57,7 @@ func main() {
 
 	createClientUseCase := create_client.NewCreateClientUsecase(clientDb)
 	createAccountUseCase := create_account.NewCreateAccountUsecase(accountDb, clientDb)
-	createTransactionUsecase := create_transaction.NewCreateTransactionUsecase(uow, eventDispatcher, transactionCreatedEvent)
+	createTransactionUsecase := create_transaction.NewCreateTransactionUsecase(uow, eventDispatcher, transactionCreatedEvent, balanceUpdateEvent)
 
 	webserver := webserver.NewWebServer(":8080")
 
